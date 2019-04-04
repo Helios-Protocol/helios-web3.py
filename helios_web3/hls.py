@@ -369,6 +369,9 @@ class Hls(Module):
     def getCurrentSyncingParameters(self):
         return self.web3.manager.request_blocking("hls_getCurrentSyncingParameters", [])
 
+    def getBlockchainDatabase(self):
+        return self.web3.manager.request_blocking("hls_getBlockchainDatabase", [])
+
     #
     # Gets
     #
