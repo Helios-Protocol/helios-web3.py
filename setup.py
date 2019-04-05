@@ -8,7 +8,7 @@ from setuptools import (
 
 setup(
     name='helios_web3',
-    version='5.0.1',
+    version='5.0.2',
     description="""Helios version of Web3.py""",
     long_description_markdown_filename='README.rst',
     author='Tommy Mckinnon',
@@ -16,7 +16,7 @@ setup(
     url='https://github.com/Helios-Protocol/helios_web3.py',
     include_package_data=True,
     install_requires=[
-        "web3>=4.0.0,<6.0.0",
+        "web3>=5.0.0a9,<6.0.0",
         "eth-abi>=2.0.0b6,<3.0.0",
         "eth-account>=0.2.1,<0.4.0",
         "eth-hash[pycryptodome]>=0.2.0,<1.0.0",
