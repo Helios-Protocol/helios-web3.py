@@ -1,12 +1,12 @@
 from web3 import Web3
 from helios_web3.hls import Hls
-from web3.utils.empty import empty
+from web3._utils.empty import empty
 
 class HeliosWeb3(Web3):
-    def __init__(self, providers=empty, middlewares=None, modules=None, ens=empty):
+    def __init__(self, provider=empty, middlewares=None, modules=None, ens=empty):
         if modules is None:
-            modules = {'hls': Hls}
+            modules = {'hls': (Hls,)}
         else:
-            modules['hls'] = Hls
+            modules['hls'] = (Hls,)
 
-        super().__init__(providers=providers, middlewares=middlewares, modules=modules, ens=ens)
+        super().__init__(provider=provider, middlewares=middlewares, modules=modules, ens=ens)

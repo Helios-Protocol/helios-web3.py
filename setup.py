@@ -8,7 +8,7 @@ from setuptools import (
 
 setup(
     name='helios_web3',
-    version='5.0.2',
+    version='5.0.3',
     description="""Helios version of Web3.py""",
     long_description_markdown_filename='README.rst',
     author='Tommy Mckinnon',
@@ -27,6 +27,7 @@ setup(
         "lru-dict>=1.1.6,<2.0.0",
         "requests>=2.16.0,<3.0.0",
         "pypiwin32>=223;platform_system=='Windows'",
+        "py-helios-node>=0.2.0-alpha.33"
     ],
     setup_requires=['setuptools-markdown'],
     python_requires='>=3.6,<4',
