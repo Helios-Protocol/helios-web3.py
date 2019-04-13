@@ -384,3 +384,6 @@ class Hls(Module):
     def getHistoricalGasPrice(self):
         return self.web3.manager.request_blocking("hls_getHistoricalGasPrice",[])
 
+    def getConnectedNodes(self):
+        return self.web3.manager.request_blocking("hls_getConnectedNodes", [])
+
