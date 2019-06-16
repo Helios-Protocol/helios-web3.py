@@ -366,11 +366,15 @@ class Hls(Module):
     def getChronologicalBlockWindowTimestampHashes(self, timestamp):
         return self.web3.manager.request_blocking("hls_getChronologicalBlockWindowTimestampHashes", [timestamp])
 
+    def getHistoricalRootHashes(self):
+        return self.web3.manager.request_blocking("hls_getHistoricalRootHashes", [])
+
     def getCurrentSyncingParameters(self):
         return self.web3.manager.request_blocking("hls_getCurrentSyncingParameters", [])
 
     def getBlockchainDatabase(self):
         return self.web3.manager.request_blocking("hls_getBlockchainDatabase", [])
+
 
     #
     # Gets
