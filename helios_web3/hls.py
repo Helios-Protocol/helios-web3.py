@@ -1,4 +1,4 @@
-from eth_account import (
+from helios_web3.account import (
     Account,
 )
 from eth_utils import (
@@ -233,10 +233,16 @@ class Hls(Module):
             [transaction],
         )
 
-    def sendRawTransaction(self, raw_transaction):
+    def sendRawBlock(self, raw_block):
         return self.web3.manager.request_blocking(
-            "hls_sendRawTransaction",
-            [raw_transaction],
+            "hls_sendRawBlock",
+            [raw_block],
+        )
+
+    def getBlockCreationParams(self, chain_address):
+        return self.web3.manager.request_blocking(
+            "hls_getBlockCreationParams",
+            [chain_address],
         )
 
     def sign(self, account, data=None, hexstr=None, text=None):
