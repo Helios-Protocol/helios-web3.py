@@ -160,13 +160,16 @@ class Account(EthAccount):
 
         timestamp = int(time.time())
 
+        reward_bundle = StakeRewardBundle()
+
         header = BlockHeader(chain_address = decode_hex(chain_address),
                               parent_hash = header_dict['parentHash'],
                               transaction_root = send_tx_root_hash,
                               receive_transaction_root = receive_tx_root_hash,
                               block_number = header_dict['blockNumber'],
                               timestamp = timestamp,
-                              extra_data = extra_data)
+                              extra_data = extra_data,
+                              reward_hash = reward_bundle.hash)
 
         signed_header = header.get_signed(account._key_obj, chain_id)
         signed_micro_header = signed_header.to_micro_header()
@@ -174,7 +177,7 @@ class Account(EthAccount):
         micro_block = BosonMicroBlock(header = signed_micro_header,
                                       transactions = send_transactions,
                                       receive_transactions = receive_transactions,
-                                      reward_bundle = StakeRewardBundle())
+                                      reward_bundle = reward_bundle)
 
         rlp_encoded_micro_block = rlp.encode(micro_block, sedes=BosonMicroBlock)
 
