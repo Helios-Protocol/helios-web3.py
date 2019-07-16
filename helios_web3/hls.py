@@ -16,6 +16,7 @@ from web3.iban import (
 from web3.module import (
     Module,
 )
+
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
@@ -30,7 +31,7 @@ from web3._utils.filters import (
     LogFilter,
     TransactionFilter,
 )
-from web3._utils.toolz import (
+from eth_utils.toolz import (
     assoc,
     merge,
 )
