@@ -193,6 +193,12 @@ class Hls(Module):
             "hls_getTransactionReceipt",
             [transaction_hash],
         )
+    
+    def getReceiveTransactionOfSendTransaction(self, transaction_hash):
+        return self.web3.manager.request_blocking(
+            "hls_getReceiveTransactionOfSendTransaction",
+            [transaction_hash],
+        )
 
     def getTransactionCount(self, account, block_identifier=None):
         if block_identifier is None:

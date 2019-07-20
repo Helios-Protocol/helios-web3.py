@@ -183,7 +183,8 @@ class Account(EthAccount):
 
         return AttributeDict({
             'rawBlock': encode_hex(rlp_encoded_micro_block),
-            'hash': encode_hex(signed_header.micro_header_hash),
+            'send_tx_hashes': [tx.hash for tx in send_transactions],
+            'receive_tx_hashes': [tx.hash for tx in receive_transactions],
             'r': signed_header.r,
             's': signed_header.s,
             'v': signed_header.v,
