@@ -81,6 +81,7 @@ from eth_account.datastructures import (
 # ]
 from hvm.rlp.consensus import StakeRewardBundle
 
+from eth_utils import to_bytes, is_bytes
 
 class Account(EthAccount):
 
@@ -118,8 +119,15 @@ class Account(EthAccount):
         :return:
         '''
 
+        if not is_bytes(header_dict['parentHash']):
+            header_dict['parentHash'] = to_bytes(hexstr=header_dict['parentHash'])
+
+
         if "extraData" in header_dict:
-            extra_data = header_dict['extraData']
+            if not is_bytes(header_dict['extraData']):
+                extra_data = to_bytes(hexstr=header_dict['extraData'])
+            else:
+                extra_data = header_dict['extraData']
         else:
             extra_data = b''
 
@@ -131,21 +139,41 @@ class Account(EthAccount):
 
         send_transactions = []
         for transaction_dict in send_transaction_dicts:
+            if 'data' in transaction_dict:
+                if not is_bytes(transaction_dict['data']):
+                    data = to_bytes(hexstr = transaction_dict['data'])
+                else:
+                    data = transaction_dict['data']
+            else:
+                data = b''
+
+            if not is_bytes(transaction_dict['to']):
+                to = to_bytes(hexstr = transaction_dict['to'])
+            else:
+                to = transaction_dict['to']
+
             tx = BosonTransaction(nonce = transaction_dict['nonce'],
-                                          gas_price = transaction_dict['gasPrice'],
-                                          gas = transaction_dict['gas'],
-                                          to = transaction_dict['to'],
-                                          value = transaction_dict['value'],
-                                          data = transaction_dict['data'] if 'data' in transaction_dict else b'',
-                                          v = 0,
-                                          r = 0,
-                                          s = 0
-                                          )
+                                  gas_price = transaction_dict['gasPrice'],
+                                  gas = transaction_dict['gas'],
+                                  to = to,
+                                  value = transaction_dict['value'],
+                                  data = data,
+                                  v = 0,
+                                  r = 0,
+                                  s = 0
+                                  )
             signed_tx = tx.get_signed(account._key_obj, chain_id)
             send_transactions.append(signed_tx)
 
         receive_transactions = []
         for receive_transaction_dict in receive_transaction_dicts:
+
+            if not is_bytes(receive_transaction_dict['senderBlockHash']):
+                receive_transaction_dict['senderBlockHash'] = to_bytes(hexstr = receive_transaction_dict['senderBlockHash'])
+
+            if not is_bytes(receive_transaction_dict['sendTransactionHash']):
+                receive_transaction_dict['sendTransactionHash'] = to_bytes(hexstr = receive_transaction_dict['sendTransactionHash'])
+
             tx = BosonReceiveTransaction(sender_block_hash = receive_transaction_dict['senderBlockHash'],
                                                  send_transaction_hash = receive_transaction_dict['sendTransactionHash'],
                                                  is_refund = receive_transaction_dict['isRefund'],
