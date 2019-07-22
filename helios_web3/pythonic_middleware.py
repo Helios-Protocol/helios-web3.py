@@ -279,12 +279,39 @@ estimate_gas_with_block_id = apply_formatters_to_sequence([
 ])
 
 pythonic_middleware = construct_formatting_middleware(
-    request_formatters={},
+    request_formatters={
+        # Hls
+        'hls_getBalance': apply_formatter_at_index(block_number_formatter, 1),
+        'hls_getBlockTransactionCountByNumber': apply_formatter_at_index(
+            block_number_formatter,
+            0,
+        ),
+        'hls_getCode': apply_formatter_at_index(block_number_formatter, 1),
+        'hls_getStorageAt': apply_formatter_at_index(block_number_formatter, 2),
+    },
     result_formatters={
         # Hls
+        'hls_blockNumber': to_integer_if_hex,
+        'hls_gasPrice': to_integer_if_hex,
+        'hls_getBalance': to_integer_if_hex,
+        'hls_getBlockTransactionCountByHash': to_integer_if_hex,
+        'hls_getBlockTransactionCountByNumber': to_integer_if_hex,
+        'hls_getCode': HexBytes,
+        'hls_getStorageAt': HexBytes,
+        'hls_getTransactionByBlockHashAndIndex': apply_formatter_if(
+            is_not_null,
+            transaction_formatter,
+        ),
+        'hls_getTransactionByBlockNumberAndIndex': apply_formatter_if(
+            is_not_null,
+            transaction_formatter,
+        ),
         'hls_getTransactionReceipt': apply_formatter_if(
             is_not_null,
             receipt_formatter,
         ),
+
+        # Net
+        'net_peerCount': to_integer_if_hex,
     },
 )

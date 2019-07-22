@@ -86,9 +86,8 @@ class Hls(Module):
     def accounts(self):
         return self.web3.manager.request_blocking("hls_accounts", [])
 
-    @property
-    def blockNumber(self):
-        return self.web3.manager.request_blocking("hls_blockNumber", [])
+    def blockNumber(self, chain_address):
+        return self.web3.manager.request_blocking("hls_blockNumber", [chain_address])
 
     def getBalance(self, account, block_identifier=None):
         if block_identifier is None:
@@ -131,7 +130,7 @@ class Hls(Module):
             [block_identifier, full_transactions],
         )
 
-    def getBlockTransactionCount(self, block_identifier):
+    def getBlockTransactionCount(self, block_identifier, chain_address = None):
         """
         `hls_getBlockTransactionCountByHash`
         `hls_getBlockTransactionCountByNumber`
@@ -142,10 +141,18 @@ class Hls(Module):
             if_hash='hls_getBlockTransactionCountByHash',
             if_number='hls_getBlockTransactionCountByNumber',
         )
-        return self.web3.manager.request_blocking(
-            method,
-            [block_identifier],
-        )
+        if method == 'hls_getBlockTransactionCountByNumber':
+            if chain_address is None:
+                raise TypeError("To get the block transaction count by block number, you must provide a chain address")
+            return self.web3.manager.request_blocking(
+                method,
+                [block_identifier, chain_address],
+            )
+        else:
+            return self.web3.manager.request_blocking(
+                method,
+                [block_identifier],
+            )
 
     def getUncleCount(self, block_identifier):
         """
@@ -169,7 +176,7 @@ class Hls(Module):
             [transaction_hash],
         )
 
-    def getTransactionFromBlock(self, block_identifier, transaction_index):
+    def getTransactionFromBlock(self, block_identifier, transaction_index, chain_address = None):
         """
         `hls_getTransactionByBlockHashAndIndex`
         `hls_getTransactionByBlockNumberAndIndex`
@@ -180,10 +187,18 @@ class Hls(Module):
             if_hash='hls_getTransactionByBlockHashAndIndex',
             if_number='hls_getTransactionByBlockNumberAndIndex',
         )
-        return self.web3.manager.request_blocking(
-            method,
-            [block_identifier, transaction_index],
-        )
+        if method == 'hls_getTransactionByBlockNumberAndIndex':
+            if chain_address is None:
+                raise TypeError("To get the block transaction count by block number, you must provide a chain address")
+            return self.web3.manager.request_blocking(
+                method,
+                [block_identifier, transaction_index, chain_address],
+            )
+        else:
+            return self.web3.manager.request_blocking(
+                method,
+                [block_identifier, transaction_index],
+            )
 
     def waitForTransactionReceipt(self, transaction_hash, timeout=120):
         return wait_for_transaction_receipt(self.web3, transaction_hash, timeout)
