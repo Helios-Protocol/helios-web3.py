@@ -29,6 +29,7 @@ from web3._utils.abi import (
 from web3._utils.encoding import (
     hexstr_if_str,
     to_hex,
+    to_text
 )
 from web3._utils.formatters import (
     apply_formatter_at_index,
@@ -278,6 +279,37 @@ estimate_gas_with_block_id = apply_formatters_to_sequence([
     block_number_formatter,
 ])
 
+min_gas_price_formatter = apply_formatters_to_sequence([
+    to_integer_if_hex,
+    to_integer_if_hex,
+])
+
+
+BLOCK_CREATION_PARAMETERS_FORMATTER = {
+    'block_number': to_integer_if_hex,
+    'parent_hash': HexBytes,
+    'nonce': to_integer_if_hex,
+    'receive_transactions': apply_formatter_to_array(transaction_formatter),
+    'reward_bundle': HexBytes,
+}
+
+
+block_creation_parameters_formatter = apply_formatters_to_dict(BLOCK_CREATION_PARAMETERS_FORMATTER)
+
+GET_CONNECTED_NODES_FORMATTER = {
+    'url': to_text,
+    'ipAddress': to_text,
+    'udpPort': to_integer_if_hex,
+    'tcpPort': to_integer_if_hex,
+    'stake': to_integer_if_hex,
+    'requestsSent': to_integer_if_hex,
+    'failedRequests': to_integer_if_hex,
+    'averageResponseTime': to_integer_if_hex,
+}
+
+get_connected_nodes_formatter = apply_formatters_to_dict(GET_CONNECTED_NODES_FORMATTER)
+
+
 pythonic_middleware = construct_formatting_middleware(
     request_formatters={
         # Hls
@@ -288,6 +320,8 @@ pythonic_middleware = construct_formatting_middleware(
         ),
         'hls_getCode': apply_formatter_at_index(block_number_formatter, 1),
         'hls_getStorageAt': apply_formatter_at_index(block_number_formatter, 2),
+        'hls_getTransactionCount': apply_formatter_at_index(block_number_formatter, 1),
+        'hls_getBlockByNumber': apply_formatter_at_index(block_number_formatter, 0),
     },
     result_formatters={
         # Hls
@@ -310,7 +344,22 @@ pythonic_middleware = construct_formatting_middleware(
             is_not_null,
             receipt_formatter,
         ),
-
+        'hls_getTransactionCount': to_integer_if_hex,
+        'hls_protocolVersion': compose(
+            apply_formatter_if(is_integer, str),
+            to_integer_if_hex,
+        ),
+        'hls_getTransactionByHash': apply_formatter_if(is_not_null, transaction_formatter),
+        'hls_getReceivableTransactions': apply_formatter_to_array(transaction_formatter),
+        'hls_getReceiveTransactionOfSendTransaction': apply_formatter_if(is_not_null, transaction_formatter),
+        'hls_getHistoricalGasPrice': apply_formatter_to_array(min_gas_price_formatter),
+        'hls_getApproximateHistoricalNetworkTPCCapability': apply_formatter_to_array(min_gas_price_formatter),
+        'hls_getApproximateHistoricalTPC': apply_formatter_to_array(min_gas_price_formatter),
+        'hls_getBlockNumber':to_integer_if_hex,
+        'hls_getBlockCreationParams': block_creation_parameters_formatter,
+        'hls_getBlockByHash': apply_formatter_if(is_not_null, block_formatter),
+        'hls_getBlockByNumber': apply_formatter_if(is_not_null, block_formatter),
+        'hls_getConnectedNodes': apply_formatter_to_array(get_connected_nodes_formatter),
         # Net
         'net_peerCount': to_integer_if_hex,
     },

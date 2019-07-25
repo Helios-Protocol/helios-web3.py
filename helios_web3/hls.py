@@ -113,7 +113,7 @@ class Hls(Module):
             [account, block_identifier],
         )
 
-    def getBlock(self, block_identifier, full_transactions=False):
+    def getBlock(self, block_identifier, full_transactions=False, chain_address = None):
         """
         `hls_getBlockByHash`
         `hls_getBlockByNumber`
@@ -125,10 +125,20 @@ class Hls(Module):
             if_number='hls_getBlockByNumber',
         )
 
-        return self.web3.manager.request_blocking(
-            method,
-            [block_identifier, full_transactions],
-        )
+        if method == 'hls_getBlockByHash':
+            return self.web3.manager.request_blocking(
+                method,
+                [block_identifier, full_transactions],
+            )
+        else:
+            if chain_address is None:
+                raise TypeError("To get the block by block number, you must provide a chain address")
+
+            return self.web3.manager.request_blocking(
+                method,
+                [block_identifier, chain_address, full_transactions],
+            )
+
 
     def getBlockTransactionCount(self, block_identifier, chain_address = None):
         """
@@ -213,6 +223,12 @@ class Hls(Module):
         return self.web3.manager.request_blocking(
             "hls_getReceiveTransactionOfSendTransaction",
             [transaction_hash],
+        )
+
+    def getReceivableTransactions(self, chain_address):
+        return self.web3.manager.request_blocking(
+            "hls_getReceivableTransactions",
+            [chain_address],
         )
 
     def getTransactionCount(self, account, block_identifier=None):
@@ -413,9 +429,45 @@ class Hls(Module):
     def getBlockByNumber(self, block_number, chain_address, include_transactions=False):
         return self.web3.manager.request_blocking("hls_getBlockByNumber",
                                                   [block_number, chain_address, include_transactions])
+
     def getHistoricalGasPrice(self):
         return self.web3.manager.request_blocking("hls_getHistoricalGasPrice",[])
 
+    def getApproximateHistoricalNetworkTPCCapability(self):
+        return self.web3.manager.request_blocking("hls_getApproximateHistoricalNetworkTPCCapability",[])
+
+    def getApproximateHistoricalTPC(self):
+        return self.web3.manager.request_blocking("hls_getApproximateHistoricalTPC",[])
+
     def getConnectedNodes(self):
         return self.web3.manager.request_blocking("hls_getConnectedNodes", [])
+
+    #
+    # Blocks
+    #
+
+
+    def getBlockNumber(self,account, block_identifier=None):
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
+        return self.web3.manager.request_blocking(
+            "hls_getBlockNumber",
+            [
+                account,
+                block_identifier,
+            ],
+        )
+
+    def getNewestBlocks(self, num_to_return = '0xA', start_idx = '0x0', after_hash = '0x', chain_address = '0x', include_transactions: bool = False):
+
+        return self.web3.manager.request_blocking(
+            "hls_getNewestBlocks",
+            [
+                num_to_return,
+                start_idx,
+                after_hash,
+                chain_address,
+                include_transactions,
+            ],
+        )
 
