@@ -80,6 +80,9 @@ class Hls(Module):
 
     @property
     def gasPrice(self):
+        return self.web3.manager.request_blocking("hls_gasPrice", [])
+
+    def getGasPrice(self):
         return self.web3.manager.request_blocking("hls_getGasPrice", [])
 
     @property

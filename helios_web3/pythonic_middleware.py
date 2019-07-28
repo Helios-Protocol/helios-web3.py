@@ -310,6 +310,7 @@ GET_CONNECTED_NODES_FORMATTER = {
 get_connected_nodes_formatter = apply_formatters_to_dict(GET_CONNECTED_NODES_FORMATTER)
 
 
+
 pythonic_middleware = construct_formatting_middleware(
     request_formatters={
         # Hls
@@ -327,6 +328,7 @@ pythonic_middleware = construct_formatting_middleware(
         # Hls
         'hls_blockNumber': to_integer_if_hex,
         'hls_gasPrice': to_integer_if_hex,
+        'hls_getGasPrice': to_integer_if_hex,
         'hls_getBalance': to_integer_if_hex,
         'hls_getBlockTransactionCountByHash': to_integer_if_hex,
         'hls_getBlockTransactionCountByNumber': to_integer_if_hex,
