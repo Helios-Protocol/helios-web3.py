@@ -289,7 +289,7 @@ BLOCK_CREATION_PARAMETERS_FORMATTER = {
     'block_number': to_integer_if_hex,
     'parent_hash': HexBytes,
     'nonce': to_integer_if_hex,
-    'receive_transactions': HexBytes,
+    'receive_transactions': apply_formatter_to_array(HexBytes),
     'reward_bundle': HexBytes,
 }
 
