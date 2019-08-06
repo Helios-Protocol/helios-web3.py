@@ -52,6 +52,15 @@ class Hls(Module):
     iban = Iban
     gasPriceStrategy = None
 
+    def call(self, transaction, block_identifier=None):
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
+        
+        return self.web3.manager.request_blocking(
+            "hls_call",
+            [transaction, block_identifier],
+        )
+    
     def namereg(self):
         raise NotImplementedError()
 
