@@ -68,6 +68,10 @@ class Hls(Module):
         raise NotImplementedError()
 
     @property
+    def chainId(self):
+        return self.web3.manager.request_blocking("hls_chainId", [])
+
+    @property
     def protocolVersion(self):
         return self.web3.manager.request_blocking("hls_protocolVersion", [])
 
