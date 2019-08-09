@@ -247,10 +247,10 @@ class Hls(Module):
             [chain_address],
         )
 
-    def filterAddressesWithReceivableTransactions(self, chain_addresses):
+    def filterAddressesWithReceivableTransactions(self, chain_addresses, after_timestamp = 0):
         return self.web3.manager.request_blocking(
             "hls_filterAddressesWithReceivableTransactions",
-            [chain_addresses],
+            [chain_addresses, after_timestamp],
         )
 
 
