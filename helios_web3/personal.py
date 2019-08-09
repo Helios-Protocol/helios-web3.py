@@ -17,3 +17,9 @@ class Personal(GethPersonal):
         "personal_receiveTransactions",
         mungers=[default_root_munger],
     )
+
+    getAccountsWithReceivableTransactions = Method(
+        "personal_getAccountsWithReceivableTransactions",
+        mungers=[default_root_munger],
+    )
+

@@ -365,6 +365,7 @@ pythonic_middleware = construct_formatting_middleware(
         ),
         'hls_getTransactionByHash': apply_formatter_if(is_not_null, transaction_formatter),
         'hls_getReceivableTransactions': apply_formatter_to_array(transaction_formatter),
+        'hls_filterAddressesWithReceivableTransactions': apply_formatter_to_array(HexBytes),
         'hls_getReceiveTransactionOfSendTransaction': apply_formatter_if(is_not_null, transaction_formatter),
         'hls_getHistoricalGasPrice': apply_formatter_to_array(min_gas_price_formatter),
         'hls_getApproximateHistoricalNetworkTPCCapability': apply_formatter_to_array(min_gas_price_formatter),

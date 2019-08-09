@@ -247,6 +247,13 @@ class Hls(Module):
             [chain_address],
         )
 
+    def filterAddressesWithReceivableTransactions(self, chain_addresses):
+        return self.web3.manager.request_blocking(
+            "hls_filterAddressesWithReceivableTransactions",
+            [chain_addresses],
+        )
+
+
     def getTransactionCount(self, account, block_identifier=None):
         if block_identifier is None:
             block_identifier = self.defaultBlock
