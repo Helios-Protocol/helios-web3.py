@@ -2,6 +2,7 @@ from web3 import Web3
 from web3.eth import Eth
 from web3.net import Net
 from helios_web3.hls import Hls
+from helios_web3.admin import Admin
 from helios_web3.personal import Personal
 from web3._utils.empty import empty
 from helios_web3.pythonic_middleware import pythonic_middleware
@@ -19,12 +20,14 @@ class HeliosWeb3(Web3):
             modules = {'hls': (Hls,),
                        'eth': (Hls,),
                        'personal': (Personal,),
-                       "net": (Net,),}
+                       "net": (Net,),
+                       "admin": (Admin,),}
         else:
             modules['hls'] = (Hls,)
             modules['eth'] = (Eth,)
             modules['personal'] = (Personal,)
             modules['net'] = (Net,)
+            modules['admin'] = (Admin,)
 
         if middlewares is None:
             middlewares = [

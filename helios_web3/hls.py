@@ -68,6 +68,10 @@ class Hls(Module):
         raise NotImplementedError()
 
     @property
+    def ping(self):
+        return self.web3.manager.request_blocking("hls_ping", [])
+
+    @property
     def chainId(self):
         return self.web3.manager.request_blocking("hls_chainId", [])
 

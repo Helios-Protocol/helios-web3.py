@@ -21,6 +21,7 @@ STANDARD_NORMALIZERS = [
     abi_address_to_hex,
 ]
 
+RPC_ABIS['personal_importRawKey'] = ['bytes', None]
 
 abi_middleware = construct_formatting_middleware(
     request_formatters=abi_request_formatters(STANDARD_NORMALIZERS, RPC_ABIS)
