@@ -52,11 +52,28 @@ class Hls(Module):
     iban = Iban
     gasPriceStrategy = None
 
+    def call(self, transaction, block_identifier=None):
+        if block_identifier is None:
+            block_identifier = self.defaultBlock
+        
+        return self.web3.manager.request_blocking(
+            "hls_call",
+            [transaction, block_identifier],
+        )
+    
     def namereg(self):
         raise NotImplementedError()
 
     def icapNamereg(self):
         raise NotImplementedError()
+
+    @property
+    def ping(self):
+        return self.web3.manager.request_blocking("hls_ping", [])
+
+    @property
+    def chainId(self):
+        return self.web3.manager.request_blocking("hls_chainId", [])
 
     @property
     def protocolVersion(self):
@@ -233,6 +250,13 @@ class Hls(Module):
             "hls_getReceivableTransactions",
             [chain_address],
         )
+
+    def filterAddressesWithReceivableTransactions(self, chain_addresses, after_timestamp = 0):
+        return self.web3.manager.request_blocking(
+            "hls_filterAddressesWithReceivableTransactions",
+            [chain_addresses, after_timestamp],
+        )
+
 
     def getTransactionCount(self, account, block_identifier=None):
         if block_identifier is None:

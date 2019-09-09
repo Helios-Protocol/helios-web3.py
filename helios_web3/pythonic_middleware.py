@@ -293,7 +293,7 @@ BLOCK_CREATION_PARAMETERS_FORMATTER = {
     'block_number': to_integer_if_hex,
     'parent_hash': HexBytes,
     'nonce': to_integer_if_hex,
-    'receive_transactions': apply_formatter_to_array(transaction_formatter),
+    'receive_transactions': apply_formatter_to_array(HexBytes),
     'reward_bundle': HexBytes,
 }
 
@@ -313,8 +313,14 @@ GET_CONNECTED_NODES_FORMATTER = {
 
 get_connected_nodes_formatter = apply_formatters_to_dict(GET_CONNECTED_NODES_FORMATTER)
 
+@curry
+def to_hex_if_bytes(val):
+    if isinstance(val, (bytes, bytearray)):
+        return to_hex(val)
+    else:
+        return val
 
-
+    
 pythonic_middleware = construct_formatting_middleware(
     request_formatters={
         # Hls
@@ -327,6 +333,12 @@ pythonic_middleware = construct_formatting_middleware(
         'hls_getStorageAt': apply_formatter_at_index(block_number_formatter, 2),
         'hls_getTransactionCount': apply_formatter_at_index(block_number_formatter, 1),
         'hls_getBlockByNumber': apply_formatter_at_index(block_number_formatter, 0),
+        'hls_getTransactionReceipt': apply_formatter_at_index(to_hex_if_bytes, 0),
+        'hls_call': compose(
+            apply_formatter_at_index(transaction_param_formatter, 0),
+            apply_formatter_at_index(block_number_formatter, 1),
+        )
+        ,
     },
     result_formatters={
         # Hls
@@ -357,6 +369,7 @@ pythonic_middleware = construct_formatting_middleware(
         ),
         'hls_getTransactionByHash': apply_formatter_if(is_not_null, transaction_formatter),
         'hls_getReceivableTransactions': apply_formatter_to_array(transaction_formatter),
+        'hls_filterAddressesWithReceivableTransactions': apply_formatter_to_array(HexBytes),
         'hls_getReceiveTransactionOfSendTransaction': apply_formatter_if(is_not_null, transaction_formatter),
         'hls_getHistoricalGasPrice': apply_formatter_to_array(min_gas_price_formatter),
         'hls_getApproximateHistoricalNetworkTPCCapability': apply_formatter_to_array(min_gas_price_formatter),
@@ -366,6 +379,7 @@ pythonic_middleware = construct_formatting_middleware(
         'hls_getBlockByHash': apply_formatter_if(is_not_null, block_formatter),
         'hls_getBlockByNumber': apply_formatter_if(is_not_null, block_formatter),
         'hls_getConnectedNodes': apply_formatter_to_array(get_connected_nodes_formatter),
+        'hls_call':HexBytes,
         # Net
         'net_peerCount': to_integer_if_hex,
     },
