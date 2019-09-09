@@ -183,6 +183,10 @@ BLOCK_FORMATTERS = {
         (apply_formatter_to_array(transaction_formatter), is_array_of_dicts),
         (apply_formatter_to_array(to_hexbytes(32)), is_array_of_strings),
     )),
+    'receiveTransactions': apply_one_of_formatters((
+        (apply_formatter_to_array(transaction_formatter), is_array_of_dicts),
+        (apply_formatter_to_array(to_hexbytes(32)), is_array_of_strings),
+    )),
     'transactionsRoot': to_hexbytes(32),
 }
 
