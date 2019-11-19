@@ -332,7 +332,10 @@ pythonic_middleware = construct_formatting_middleware(
         'hls_getCode': apply_formatter_at_index(block_number_formatter, 1),
         'hls_getStorageAt': apply_formatter_at_index(block_number_formatter, 2),
         'hls_getTransactionCount': apply_formatter_at_index(block_number_formatter, 1),
-        'hls_getBlockByNumber': apply_formatter_at_index(block_number_formatter, 0),
+        'hls_getBlockByNumber': compose(
+            apply_formatter_at_index(block_number_formatter, 0),
+            apply_formatter_at_index(to_hex_if_bytes, 1),
+        ),
         'hls_getTransactionReceipt': apply_formatter_at_index(to_hex_if_bytes, 0),
         'hls_call': compose(
             apply_formatter_at_index(transaction_param_formatter, 0),
