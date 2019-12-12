@@ -20,8 +20,10 @@ from eth_keys.datatypes import PrivateKey
 from typing import (
     Tuple,
     List,
-)
+    Dict, Any)
 import rlp_cython as rlp
+from helios_web3.utils.get_version import get_photon_timestamp
+from hvm.constants import GAS_TX
 from hvm.vm.forks.boson.transactions import BosonTransaction
 # fields = [
 #         ('nonce', big_endian_int),
@@ -81,9 +83,13 @@ from eth_account.datastructures import (
 # ]
 from hvm.rlp.consensus import StakeRewardBundle
 
-from eth_utils import to_bytes, is_bytes
+from eth_utils import to_bytes, is_bytes, to_hex, to_wei
+from hvm.vm.forks.photon import PhotonTransaction, PhotonMicroBlock
+
 
 class Account(EthAccount):
+
+    
 
     @combomethod
     def signBlock(self, header_dict: dict, private_key: str, send_transaction_dicts: List[dict] = [], receive_transaction_dicts: List[dict] = [] ) -> AttributeDict:
@@ -119,6 +125,8 @@ class Account(EthAccount):
         :return:
         '''
 
+        timestamp = int(time.time())
+
         if not is_bytes(header_dict['parentHash']):
             header_dict['parentHash'] = to_bytes(hexstr=header_dict['parentHash'])
 
@@ -134,7 +142,21 @@ class Account(EthAccount):
         if "chainId" in header_dict:
             chain_id = header_dict['chainId']
         else:
-            chain_id = 1
+            if len(send_transaction_dicts) > 0:
+                if 'chainId' in send_transaction_dicts[0]:
+                    chain_id = send_transaction_dicts[0]['chainId']
+                else:
+                    chain_id = 1
+            else:
+                chain_id = 1
+
+        print('chain_id', chain_id)
+        photon_timestamp = get_photon_timestamp(chain_id)
+        if timestamp < photon_timestamp:
+            fork_id = 0
+        else:
+            fork_id = 1
+
         account = self.privateKeyToAccount(private_key)
 
         send_transactions = []
@@ -152,17 +174,50 @@ class Account(EthAccount):
             else:
                 to = transaction_dict['to']
 
-            tx = BosonTransaction(nonce = transaction_dict['nonce'],
-                                  gas_price = transaction_dict['gasPrice'],
-                                  gas = transaction_dict['gas'],
-                                  to = to,
-                                  value = transaction_dict['value'],
-                                  data = data,
-                                  v = 0,
-                                  r = 0,
-                                  s = 0
-                                  )
-            signed_tx = tx.get_signed(account._key_obj, chain_id)
+            if fork_id == 0:
+                tx = BosonTransaction(nonce = transaction_dict['nonce'],
+                                      gas_price = transaction_dict['gasPrice'],
+                                      gas = transaction_dict['gas'],
+                                      to = to,
+                                      value = transaction_dict['value'],
+                                      data = data,
+                                      v = 0,
+                                      r = 0,
+                                      s = 0
+                                      )
+                signed_tx = tx.get_signed(account._key_obj, chain_id)
+            elif fork_id == 1:
+                if 'codeAddress' in transaction_dict:
+                    if not is_bytes(transaction_dict['codeAddress']):
+                        code_address = to_bytes(hexstr=transaction_dict['codeAddress'])
+                    else:
+                        code_address = transaction_dict['codeAddress']
+                else:
+                    code_address = b''
+
+                if 'executeOnSend' in transaction_dict:
+                    execute_on_send = bool(transaction_dict['executeOnSend'])
+                else:
+                    execute_on_send = False
+
+
+
+                tx = PhotonTransaction(nonce=transaction_dict['nonce'],
+                                      gas_price=transaction_dict['gasPrice'],
+                                      gas=transaction_dict['gas'],
+                                      to=to,
+                                      value=transaction_dict['value'],
+                                      data=data,
+                                      code_address=code_address,
+                                      execute_on_send=execute_on_send,
+                                      v=0,
+                                      r=0,
+                                      s=0
+                                      )
+                signed_tx = tx.get_signed(account._key_obj, chain_id)
+            else:
+                raise Exception("Unknown fork id")
+
             send_transactions.append(signed_tx)
 
         receive_transactions = []
@@ -186,7 +241,7 @@ class Account(EthAccount):
 
         chain_address = account.address
 
-        timestamp = int(time.time())
+
 
         reward_bundle = StakeRewardBundle()
 
@@ -202,12 +257,22 @@ class Account(EthAccount):
         signed_header = header.get_signed(account._key_obj, chain_id)
         signed_micro_header = signed_header.to_micro_header()
 
-        micro_block = BosonMicroBlock(header = signed_micro_header,
-                                      transactions = send_transactions,
-                                      receive_transactions = receive_transactions,
-                                      reward_bundle = reward_bundle)
+        if fork_id == 0:
+            micro_block = BosonMicroBlock(header = signed_micro_header,
+                                          transactions = send_transactions,
+                                          receive_transactions = receive_transactions,
+                                          reward_bundle = reward_bundle)
+            rlp_encoded_micro_block = rlp.encode(micro_block, sedes=BosonMicroBlock)
+        elif fork_id == 1:
+            micro_block = PhotonMicroBlock(header=signed_micro_header,
+                                          transactions=send_transactions,
+                                          receive_transactions=receive_transactions,
+                                          reward_bundle=reward_bundle)
+            rlp_encoded_micro_block = rlp.encode(micro_block, sedes=PhotonMicroBlock)
+        else:
+            raise Exception("Unknown fork id")
 
-        rlp_encoded_micro_block = rlp.encode(micro_block, sedes=BosonMicroBlock)
+
 
         return AttributeDict({
             'rawBlock': encode_hex(rlp_encoded_micro_block),

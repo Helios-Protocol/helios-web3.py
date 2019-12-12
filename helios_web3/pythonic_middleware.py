@@ -324,6 +324,9 @@ def to_hex_if_bytes(val):
 pythonic_middleware = construct_formatting_middleware(
     request_formatters={
         # Hls
+        'hls_getBlockCreationParams': compose(
+            apply_formatter_at_index(to_hex_if_bytes, 0),
+        ),
         'hls_getBalance': apply_formatter_at_index(block_number_formatter, 1),
         'hls_getBlockTransactionCountByNumber': apply_formatter_at_index(
             block_number_formatter,

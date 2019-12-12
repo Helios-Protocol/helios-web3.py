@@ -8,7 +8,7 @@ from setuptools import (
 
 setup(
     name='helios_web3',
-    version='5.0.8',
+    version='5.0.9',
     description="""Helios version of Web3.py""",
     long_description_markdown_filename='README.rst',
     author='Tommy Mckinnon',
