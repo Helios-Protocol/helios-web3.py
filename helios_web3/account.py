@@ -84,7 +84,10 @@ from eth_account.datastructures import (
 from hvm.rlp.consensus import StakeRewardBundle
 
 from eth_utils import to_bytes, is_bytes, to_hex, to_wei, is_boolean, to_int, is_integer
-from hvm.vm.forks.photon import PhotonTransaction, PhotonMicroBlock
+try:
+    from hvm.vm.forks.photon import PhotonTransaction, PhotonMicroBlock, PhotonReceiveTransaction
+except ModuleNotFoundError:
+    from .temp_fork_files.photon import PhotonTransaction, PhotonMicroBlock, PhotonReceiveTransaction
 
 
 class Account(EthAccount):
@@ -233,11 +236,19 @@ class Account(EthAccount):
 
             if not is_integer(receive_transaction_dict['remainingRefund']):
                 receive_transaction_dict['remainingRefund'] = to_int(hexstr=receive_transaction_dict['remainingRefund'])
-                
-            tx = BosonReceiveTransaction(sender_block_hash = receive_transaction_dict['senderBlockHash'],
+
+            if fork_id == 0:
+                receive_transaction_class = BosonReceiveTransaction
+            elif fork_id == 1:
+                receive_transaction_class = PhotonReceiveTransaction
+            else:
+                raise Exception("Unknown fork id")
+
+            tx = receive_transaction_class(sender_block_hash = receive_transaction_dict['senderBlockHash'],
                                                  send_transaction_hash = receive_transaction_dict['sendTransactionHash'],
                                                  is_refund = receive_transaction_dict['isRefund'],
                                                  remaining_refund = receive_transaction_dict['remainingRefund'])
+
             receive_transactions.append(tx)
 
 
