@@ -8,7 +8,7 @@ from eth_utils import to_wei
 from hvm.constants import GAS_TX
 from eth_keys.datatypes import PrivateKey
 
-def prepare_and_sign_block(w3, private_key: PrivateKey, transactions: List[Dict[str, Any]]):
+def prepare_and_sign_block(w3, private_key: PrivateKey, transactions: List[Dict[str, Any]] = (), receivable_transactions: List[Dict[str, Any]] = ()):
     block_creation_parameters = w3.hls.getBlockCreationParams(private_key.public_key.to_canonical_address())
 
     header_dict = {'blockNumber': block_creation_parameters['block_number'],
@@ -32,7 +32,8 @@ def prepare_and_sign_block(w3, private_key: PrivateKey, transactions: List[Dict[
         nonce = nonce + 1
 
     signed_block = w3.hls.account.signBlock(send_transaction_dicts=transactions,
-                                                 header_dict=header_dict,
-                                                 private_key=str(private_key))
+                                            receive_transaction_dicts=receivable_transactions,
+                                            header_dict=header_dict,
+                                            private_key=str(private_key))
 
     return signed_block, header_dict, transactions

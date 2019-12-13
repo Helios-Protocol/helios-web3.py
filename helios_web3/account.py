@@ -83,7 +83,7 @@ from eth_account.datastructures import (
 # ]
 from hvm.rlp.consensus import StakeRewardBundle
 
-from eth_utils import to_bytes, is_bytes, to_hex, to_wei
+from eth_utils import to_bytes, is_bytes, to_hex, to_wei, is_boolean, to_int, is_integer
 from hvm.vm.forks.photon import PhotonTransaction, PhotonMicroBlock
 
 
@@ -150,7 +150,6 @@ class Account(EthAccount):
             else:
                 chain_id = 1
 
-        print('chain_id', chain_id)
         photon_timestamp = get_photon_timestamp(chain_id)
         if timestamp < photon_timestamp:
             fork_id = 0
@@ -229,6 +228,12 @@ class Account(EthAccount):
             if not is_bytes(receive_transaction_dict['sendTransactionHash']):
                 receive_transaction_dict['sendTransactionHash'] = to_bytes(hexstr = receive_transaction_dict['sendTransactionHash'])
 
+            if not is_boolean(receive_transaction_dict['isRefund']):
+                receive_transaction_dict['isRefund'] = False if to_int(hexstr = receive_transaction_dict['isRefund']) == 0 else True
+
+            if not is_integer(receive_transaction_dict['remainingRefund']):
+                receive_transaction_dict['remainingRefund'] = to_int(hexstr=receive_transaction_dict['remainingRefund'])
+                
             tx = BosonReceiveTransaction(sender_block_hash = receive_transaction_dict['senderBlockHash'],
                                                  send_transaction_hash = receive_transaction_dict['sendTransactionHash'],
                                                  is_refund = receive_transaction_dict['isRefund'],
