@@ -234,8 +234,18 @@ class Account(EthAccount):
             if not is_boolean(receive_transaction_dict['isRefund']):
                 receive_transaction_dict['isRefund'] = False if to_int(hexstr = receive_transaction_dict['isRefund']) == 0 else True
 
-            if not is_integer(receive_transaction_dict['remainingRefund']):
-                receive_transaction_dict['remainingRefund'] = to_int(hexstr=receive_transaction_dict['remainingRefund'])
+            # We renamed the fourth parameter in the new photon fork
+            fourth_parameter = 0
+            if 'remainingRefund' in receive_transaction_dict:
+                if not is_integer(receive_transaction_dict['remainingRefund']):
+                    fourth_parameter = to_int(hexstr=receive_transaction_dict['remainingRefund'])
+                else:
+                    fourth_parameter = receive_transaction_dict['remainingRefund']
+            elif 'refundAmount' in receive_transaction_dict:
+                if not is_integer(receive_transaction_dict['refundAmount']):
+                    fourth_parameter = to_int(hexstr=receive_transaction_dict['refundAmount'])
+                else:
+                    fourth_parameter = receive_transaction_dict['refundAmount']
 
             if fork_id == 0:
                 receive_transaction_class = BosonReceiveTransaction
@@ -244,10 +254,10 @@ class Account(EthAccount):
             else:
                 raise Exception("Unknown fork id")
 
-            tx = receive_transaction_class(sender_block_hash = receive_transaction_dict['senderBlockHash'],
-                                                 send_transaction_hash = receive_transaction_dict['sendTransactionHash'],
-                                                 is_refund = receive_transaction_dict['isRefund'],
-                                                 remaining_refund = receive_transaction_dict['remainingRefund'])
+            tx = receive_transaction_class(receive_transaction_dict['senderBlockHash'],
+                                           receive_transaction_dict['sendTransactionHash'],
+                                           receive_transaction_dict['isRefund'],
+                                           fourth_parameter)
 
             receive_transactions.append(tx)
 
